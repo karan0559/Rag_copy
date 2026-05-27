@@ -1,26 +1,42 @@
 fastapi
-uvicorn
+uvicorn[standard]
 python-multipart
 python-dotenv
-faiss-cpu
-chromadb
-sentence-transformers
+
+# CPU-only torch — eliminates ~1.5 GB of CUDA/triton/nvidia packages on Render
+--extra-index-url https://download.pytorch.org/whl/cpu
 torch
+
+# Core ML
+sentence-transformers
+transformers
+faiss-cpu
+scikit-learn
+
+# RAG / retrieval
+rank-bm25
+chromadb
+
+# Document parsers
 PyMuPDF
 pdfplumber
 python-docx
 pytesseract
 pdf2image
 Pillow
+
+# Audio / transcription
 faster-whisper
 ffmpeg-python
+
+# Web scraping
 trafilatura
 youtube-transcript-api
 requests
 httpx
-scikit-learn
-edge-tts
-tqdm
+
+# LLM / API
 pandas
 openpyxl
-transformers
+edge-tts
+tqdm

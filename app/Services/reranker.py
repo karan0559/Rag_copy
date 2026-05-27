@@ -1,9 +1,13 @@
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-import torch
 import os
+
 
 class Reranker:
     def __init__(self, model_name=None, device=None):
+        # Lazy imports — torch and transformers are only pulled into RAM
+        # when the Reranker is first instantiated (on first query), not at startup.
+        from transformers import AutoTokenizer, AutoModelForSequenceClassification
+        import torch
+
         model_name = model_name or os.getenv("RERANK_MODEL", "BAAI/bge-reranker-base")
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModelForSequenceClassification.from_pretrained(model_name)
@@ -12,13 +16,15 @@ class Reranker:
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
         else:
             self.device = device
-  
+
         self.model.to(self.device)
         self.model.eval()
+        self._torch = torch  # keep reference for rerank()
 
     def rerank(self, query: str, passages: list[str], top_n=5, batch_size: int = 16):
+        torch = self._torch
         if not passages:
-            return [], []
+            return [], [], []
 
         # Pre-truncate to ~450 words so the tokenizer doesn't cut off
         # important content mid-sentence at the 512-token limit.

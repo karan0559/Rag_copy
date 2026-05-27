@@ -7,9 +7,8 @@ a change.  For ~2K chunks this takes <50ms so persistence is unnecessary.
 
 import re
 from typing import List, Dict
-from rank_bm25 import BM25Okapi
 
-_bm25: BM25Okapi | None = None
+_bm25 = None
 _raw_texts: List[str] = []
 _last_n: int = 0
 
@@ -34,6 +33,7 @@ def ensure_built(stored_chunks: List[str]) -> None:
     if len(stored_chunks) == _last_n and _bm25 is not None:
         return  # already up to date
 
+    from rank_bm25 import BM25Okapi  # lazy import
     _raw_texts = [_strip_prefix(c) for c in stored_chunks]
     corpus = [_tokenize(t) for t in _raw_texts]
     _bm25 = BM25Okapi(corpus)

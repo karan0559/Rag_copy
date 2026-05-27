@@ -5,7 +5,6 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 import os
-import webbrowser
 
 import sys
 
@@ -22,16 +21,8 @@ async def lifespan(app: FastAPI):
     from app.Services import vector_db
     vector_db.load_index()
 
-    # Pre-load the embedding model so the first query isn't slow
-    from app.Services.model_loader import get_model
-    get_model("intfloat/e5-large-v2")
 
-    try:
-        webbrowser.open("http://127.0.0.1:8000/")   # Open the chat UI, not /docs
-    except Exception:
-        print("  Could not open browser automatically.")
-
-    print("✅ RAG system ready.")
+    print("✅ RAG system ready. Embedding model loads on first query.")
     yield
     # ── Shutdown ───────────────────────────────────────────────────────────
     print("🛑 Shutting down RAG system.")
@@ -46,8 +37,8 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://127.0.0.1:8000", "http://localhost:8000"],
-    allow_credentials=True,
+    allow_origins=["*"],  # Allow all origins for production (Render, etc.)
+    allow_credentials=False,  # Must be False when allow_origins=["*"]
     allow_methods=["*"],
     allow_headers=["*"],
 )
