@@ -1,4 +1,7 @@
-const API_URL = 'http://127.0.0.1:8000';
+// Auto-detect API URL: use current origin when deployed, localhost for local dev
+const API_URL = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
+    ? 'http://127.0.0.1:8000'
+    : window.location.origin;
 
 // Global variables
 let messages = [
